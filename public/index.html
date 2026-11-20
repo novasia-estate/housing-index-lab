@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Compare three price measures using public Singapore HDB resale data, with auditable samples, methods and CSV exports.">
+<title>Housing Index Lab | NovAsia Estate</title>
+<link rel="stylesheet" href="styles.css">
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<a class="skip" href="#lab">Skip to explorer</a>
+<header><div class="frame bar"><span>NovAsia Estate Research</span><nav aria-label="Main"><a href="#lab">Explorer</a><a href="#methods">Methods</a><a href="#reproduce">Reproduce</a></nav></div></header>
+<main class="frame">
+<section class="intro">
+<p class="label">Singapore HDB resale transactions</p>
+<h1>Housing Index Lab</h1>
+<p class="dek">Three ways to measure the same market. Explore how the homes that sold can move the headline median and compare it with estimates holding characteristics more nearly constant.</p>
+<p class="metadata" id="release"></p>
+</section>
+<section id="lab" aria-labelledby="explorer-heading" class="card">
+<div class="section-head"><h2 id="explorer-heading">Compare the series</h2><button id="download" type="button" disabled>Export displayed CSV</button></div>
+<form class="controls" aria-label="Filter the series">
+<label>Flat type <select id="segment" disabled></select></label>
+<label>From <select id="start" disabled></select></label>
+<label>Through <select id="end" disabled></select></label>
+</form>
+<p class="status" id="reading" role="status">Loading the verified data snapshot…</p>
+<div class="metrics" id="metrics"></div>
+<div class="legend" aria-hidden="true"><span class="raw">Raw median</span><span class="mix">Fixed reference weights</span><span class="hedonic">Hedonic model</span></div>
+<canvas id="chart" aria-hidden="true"></canvas>
+<p class="chart-note">Index base: 2017 Q1 = 100. A gap means the method could not support a continuous estimate for that segment.</p>
+<details><summary>Read the values and coverage in a table</summary>
+<div class="table-wrap" tabindex="0" role="region" aria-label="Quarterly measurements">
+<table><caption>Quarterly index, median and model support</caption>
+<thead><tr><th scope="col">Quarter</th><th scope="col">Sales</th><th scope="col">Median, SGD</th><th scope="col">Raw</th><th scope="col">Fixed mix</th><th scope="col">Hedonic</th><th scope="col">Basket coverage</th><th scope="col">Model rows</th></tr></thead>
+<tbody id="quarters"></tbody>
+</table>
+</div></details>
+</section>
+<section id="methods" class="prose">
+<h2>What changes when you hold the mix fixed?</h2>
+<div class="method-grid">
+<article><h3>Observed median</h3><p>Divide each quarter’s median sale price by the first quarter’s median. The series reflects the recorded basket of homes sold in that period. Switching toward larger or newer flats can move this measure even if prices within groups stay flat.</p></article>
+<article><h3>Fixed reference weights</h3><p>Split records by town and flat type. Compare median prices within strata in adjacent quarters. Weight their log changes using the 2017 Q1 transaction counts and chain the results. A stratum needs 12 sales in each quarter. We suppress a link below 80% reference-weight coverage.</p></article>
+<article><h3>Hedonic model</h3><p>Fit a separate log-price regression to each adjacent-quarter pair. Include floor area, remaining lease, storey band, town and flat type. Then chain the estimated time effect. We require at least 120 eligible rows per quarter and suppress estimates when the design is rank deficient.</p></article>
+</div>
+<h3>Interpret the gap</h3>
+<p>Compare the last quarter’s index points across methods and read the sample and coverage table. A gap can reflect changes in the observed mix, model specification or measurement coverage. It is not a causal decomposition and the lab does not isolate the effect of individual amenities.</p>
+<h3>Market coverage</h3>
+<p>The source covers resale HDB flats in Singapore and uses registration dates. Incomplete quarters are excluded. The figures apply to the released snapshot and do not estimate prices in another country or for private Singapore condominiums. A continuous line ends when a required link fails.</p>
+</section>
+<section id="reproduce" class="prose">
+<h2>Reproduce or extend the analysis</h2>
+<ol><li>Download the HDB CSV and record its retrieval date and SHA-256.</li><li>Run <code>python prepare.py source.csv --cutoff YYYY-MM-DD --out public/data.json</code> with NumPy.</li><li>Run the test suite and confirm the published totals, base period, coverage thresholds and missing links.</li><li>Compare like periods. Search for the same flat type and date range before exporting a CSV to compare across notebooks.</li></ol>
+<p id="hash"></p>
+<p>Research and software by NovAsia Estate. For a companion example of distinguishing counts, prices and coverage in housing statistics, read the Cambodian housing indicators study.</p>
+<ul class="references"><li><a href="https://data.gov.sg/datasets/d_8b84c4ee58e3cfc0ece0d773c8ca6abc/view">Source data: Singapore Housing &amp; Development Board</a></li><li><a href="https://ec.europa.eu/eurostat/en/web/products-manuals-and-guidelines/-/KS-RA-12-022">Methodology reference: Eurostat handbook on residential price indices</a></li><li><a href="https://novasia.estate/en/cambodia/property-insights/cambodia-housing-indicator-coverage/">NovAsia Estate’s housing indicator coverage study</a></li></ul>
+</section>
+</main>
+<footer class="frame">Housing Index Lab · Version 1.0 · NovAsia Estate</footer>
+</body>
+</html>
